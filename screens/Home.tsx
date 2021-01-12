@@ -83,6 +83,7 @@ const ColorTouchable = ({ colorItem, headerName }: ColorTouchableProps) => {
 };
 
 const Home = () => {
+  const navigation = useNavigation();
   return (
     <>
       <FlatList
@@ -90,6 +91,12 @@ const Home = () => {
         renderItem={({ item }) => (
           <ColorTouchable colorItem={item} headerName={item.key} />
         )}
+        ListHeaderComponent={
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ColorPaletteModal')}>
+            <Text>launch modal</Text>
+          </TouchableOpacity>
+        }
       />
     </>
   );
