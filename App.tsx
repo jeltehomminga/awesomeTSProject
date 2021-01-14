@@ -3,17 +3,17 @@ import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
 import 'react-native-gesture-handler';
 import ColorPalette from './screens/ColorPalette';
-import ColorPaletteModal from './screens/ColorPaletteModal';
+import AddNewPaletteModal from './screens/AddNewPaletteModal';
 import Home, { Colors } from './screens/Home';
 
 export type MainStackParamList = {
   Home: undefined;
-  ColorPalette: { key: string; colors: Colors };
+  ColorPalette: { item: { paletteName: string; colors: Colors } };
 };
 
 export type RootStackParamList = {
   Main: undefined;
-  ColorPaletteModal: undefined;
+  AddNewPaletteModal: undefined;
 };
 
 const RootStack = createStackNavigator<RootStackParamList>();
@@ -26,7 +26,7 @@ const MainStackScreen = () => {
       <MainStack.Screen
         name="ColorPalette"
         component={ColorPalette}
-        options={({ route }) => ({ title: route.params.key })}
+        options={({ route }) => ({ title: route.params.item.paletteName })}
       />
     </MainStack.Navigator>
   );
@@ -42,8 +42,8 @@ const App = () => {
           options={{ headerShown: false }}
         />
         <RootStack.Screen
-          name="ColorPaletteModal"
-          component={ColorPaletteModal}
+          name="AddNewPaletteModal"
+          component={AddNewPaletteModal}
         />
       </RootStack.Navigator>
     </NavigationContainer>

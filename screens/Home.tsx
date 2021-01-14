@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
-import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { TouchableOpacity, Text, View } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import { FlatList } from 'react-native';
 
 export type Colors = {
@@ -10,71 +10,31 @@ export type Colors = {
 }[];
 
 type ColorTouchableProps = {
-  colorItem: { key: string; colors: Colors };
+  colorItem: { paletteName: string; colors: Colors };
   headerName: string;
 };
 
-const rainbowColors = [
-  { colorName: 'Red', hexCode: '#FF0000' },
-  { colorName: 'Orange', hexCode: '#FF7F00' },
-  { colorName: 'Yellow', hexCode: '#FFFF00' },
-  { colorName: 'Green', hexCode: '#00FF00' },
-  { colorName: 'Violet', hexCode: '#8B00FF' },
-];
-
-const femColors = [
-  { colorName: 'Red', hexCode: '#c02d28' },
-  { colorName: 'Black', hexCode: '#3e3e3e' },
-  { colorName: 'Grey', hexCode: '#8a8a8a' },
-  { colorName: 'White', hexCode: '#ffffff' },
-  { colorName: 'Orange', hexCode: '#e66225' },
-];
-
-const moreColors = [
-  { colorName: 'Base03', hexCode: '#002b36' },
-  { colorName: 'Base02', hexCode: '#073642' },
-  { colorName: 'Base01', hexCode: '#586e75' },
-  { colorName: 'Base00', hexCode: '#657b83' },
-  { colorName: 'Base0', hexCode: '#839496' },
-  { colorName: 'Base1', hexCode: '#93a1a1' },
-  { colorName: 'Base2', hexCode: '#eee8d5' },
-  { colorName: 'Base3', hexCode: '#fdf6e3' },
-  { colorName: 'Yellow', hexCode: '#b58900' },
-  { colorName: 'Orange', hexCode: '#cb4b16' },
-  { colorName: 'Red', hexCode: '#dc322f' },
-  { colorName: 'Magenta', hexCode: '#d33682' },
-  { colorName: 'Violet', hexCode: '#6c71c4' },
-  { colorName: 'Blue', hexCode: '#268bd2' },
-  { colorName: 'Cyan', hexCode: '#2aa198' },
-  { colorName: 'Green', hexCode: '#859900' },
-];
-
-const allColors = [
-  { key: 'rainbowColors', colors: rainbowColors },
-  { key: 'femColors', colors: femColors },
-  { key: 'moreColors', colors: moreColors },
-];
-
 const ColorTouchable = ({ colorItem, headerName }: ColorTouchableProps) => {
   const navigation = useNavigation();
+
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate('ColorPalette', { item: colorItem })}>
+      <Text>{headerName}</Text>
       <FlatList
         data={colorItem.colors}
         horizontal
         keyExtractor={({ colorName }) => colorName}
-        ListHeaderComponent={<Text>{headerName}</Text>}
         renderItem={({ item, index }) =>
           index < 5 ? (
             <View
               style={{
                 backgroundColor: item.hexCode,
-                margin: 10,
-                padding: 10,
-              }}>
-              <Text>{item.colorName}</Text>
-            </View>
+                marginRight: 20,
+                marginVertical: 10,
+                padding: 20,
+              }}
+            />
           ) : null
         }
       />
@@ -84,22 +44,63 @@ const ColorTouchable = ({ colorItem, headerName }: ColorTouchableProps) => {
 
 const Home = () => {
   const navigation = useNavigation();
+  const route: {
+    params: {
+      paletteName: string;
+      colors: Colors;
+    }[];
+  } = useRoute();
+
+  const [palettes, setPalettes] = useState<
+    {
+      paletteName: string;
+      colors: Colors;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    const getColors = async () => {
+      const result = await (
+        await fetch('https://color-palette-api.kadikraman.now.sh/palettes')
+      ).json();
+      if (result) {
+        setPalettes(result);
+      }
+    };
+    getColors();
+  }, []);
+
+  const completePalettes: {
+    paletteName: string;
+    colors: Colors;
+  }[] = route?.params ? [...palettes, route.params] : palettes;
+
   return (
     <>
       <FlatList
-        data={allColors}
+        data={completePalettes}
+        keyExtractor={({ paletteName }) => paletteName}
         renderItem={({ item }) => (
-          <ColorTouchable colorItem={item} headerName={item.key} />
+          <ColorTouchable colorItem={item} headerName={item.paletteName} />
         )}
         ListHeaderComponent={
           <TouchableOpacity
-            onPress={() => navigation.navigate('ColorPaletteModal')}>
-            <Text>launch modal</Text>
+            onPress={() => navigation.navigate('AddNewPaletteModal')}>
+            <Text style={styles.modal}>Add a color scheme</Text>
           </TouchableOpacity>
         }
       />
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  modal: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'teal',
+    marginVertical: 24,
+  },
+});
 
 export default Home;
