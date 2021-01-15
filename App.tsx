@@ -7,7 +7,7 @@ import AddNewPaletteModal from './screens/AddNewPaletteModal';
 import Home, { Colors } from './screens/Home';
 
 export type MainStackParamList = {
-  Home: undefined;
+  Home?: { paletteName: string; colors: Colors };
   ColorPalette: { item: { paletteName: string; colors: Colors } };
 };
 

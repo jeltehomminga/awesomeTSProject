@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import { FlatList, Switch, TextInput } from 'react-native-gesture-handler';
 import colors from '../data/colors';
 
@@ -47,7 +47,7 @@ const PaletteListItem = ({
 const AddNewPaletteModal = () => {
   const navigation = useNavigation();
   const [value, setValue] = React.useState('');
-  const [selectedColors, setSelectedColors] = useState<Array<Color>>(colors);
+  const [selectedColors, setSelectedColors] = useState<Array<Color>>([]);
 
   const handleSubmit = () => {
     if (!value) {
@@ -72,7 +72,6 @@ const AddNewPaletteModal = () => {
       />
 
       <FlatList
-        style={styles.listItemContainer}
         data={colors}
         extraData={selectedColors}
         keyExtractor={({ colorName }) => colorName}
@@ -88,9 +87,7 @@ const AddNewPaletteModal = () => {
           />
         )}
       />
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text>Submit</Text>
-      </TouchableOpacity>
+      <Button color="teal" onPress={handleSubmit} title="Submit" />
     </View>
   );
 };
@@ -100,9 +97,6 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: 'bold',
     color: 'teal',
-  },
-  listItemContainer: {
-    // maxHeight: '80%',
   },
   listItem: {
     justifyContent: 'space-between',

@@ -1,22 +1,37 @@
 /* eslint-disable react-native/no-inline-styles */
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
-import { FlatList } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { MainStackParamList, RootStackParamList } from '../App';
 
 export type Colors = {
   colorName: string;
   hexCode: string;
 }[];
 
+type ColorItem = { paletteName: string; colors: Colors };
+
 type ColorTouchableProps = {
-  colorItem: { paletteName: string; colors: Colors };
+  colorItem: ColorItem;
   headerName: string;
+  navigation: StackNavigationProp<
+    MainStackParamList & RootStackParamList,
+    'Home'
+  >;
 };
 
-const ColorTouchable = ({ colorItem, headerName }: ColorTouchableProps) => {
-  const navigation = useNavigation();
-
+const ColorTouchable = ({
+  colorItem,
+  headerName,
+  navigation,
+}: ColorTouchableProps) => {
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate('ColorPalette', { item: colorItem })}>
@@ -42,21 +57,16 @@ const ColorTouchable = ({ colorItem, headerName }: ColorTouchableProps) => {
   );
 };
 
-const Home = () => {
-  const navigation = useNavigation();
-  const route: {
-    params: {
-      paletteName: string;
-      colors: Colors;
-    }[];
-  } = useRoute();
+type HomeProps = {
+  navigation: StackNavigationProp<
+    MainStackParamList & RootStackParamList,
+    'Home'
+  >;
+  route: RouteProp<MainStackParamList, 'Home'>;
+};
 
-  const [palettes, setPalettes] = useState<
-    {
-      paletteName: string;
-      colors: Colors;
-    }[]
-  >([]);
+const Home = ({ navigation, route }: HomeProps) => {
+  const [palettes, setPalettes] = useState<ColorItem[]>([]);
 
   useEffect(() => {
     const getColors = async () => {
@@ -70,10 +80,9 @@ const Home = () => {
     getColors();
   }, []);
 
-  const completePalettes: {
-    paletteName: string;
-    colors: Colors;
-  }[] = route?.params ? [...palettes, route.params] : palettes;
+  const completePalettes = route?.params
+    ? [...palettes, route.params]
+    : palettes;
 
   return (
     <>
@@ -81,7 +90,11 @@ const Home = () => {
         data={completePalettes}
         keyExtractor={({ paletteName }) => paletteName}
         renderItem={({ item }) => (
-          <ColorTouchable colorItem={item} headerName={item.paletteName} />
+          <ColorTouchable
+            colorItem={item}
+            headerName={item.paletteName}
+            navigation={navigation}
+          />
         )}
         ListHeaderComponent={
           <TouchableOpacity
